@@ -18,6 +18,8 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         <PrivateAssets>all</PrivateAssets>
       </PackageReference>
+      <PackageReference Include="SlipStream.Common.Mediator" Version="1.0.1" />
+      <PackageReference Include="SlipStream.Common.Web" Version="1.0.3" />
     </ItemGroup>
 
 </Project>

@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-slipstream}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Pa$$word123!}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-slipstream}
       POSTGRES_DB: ${POSTGRES_DB:-slipstream_identity}
     ports:
       - "5433:5432"
