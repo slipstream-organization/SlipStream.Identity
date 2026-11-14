@@ -17,7 +17,8 @@ public static class DependencyInjection
         services
             .AddPersistence(configuration)
             .AddIdentityServices()
-            .AddJwt(configuration);
+            .AddJwt(configuration)
+            .AddGoogleLogin(configuration);
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAccountService, AccountService>();
@@ -46,21 +47,11 @@ public static class DependencyInjection
                 options.User.RequireUniqueEmail = true;
                 options.User.AllowedUserNameCharacters =
                     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-";
-
-                options.Password.RequiredLength = 8;
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddRoles<IdentityRole<Guid>>()
             .AddErrorDescriber<UkrainianIdentityErrorDescriber>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddSignInManager()
-            .AddDefaultTokenProviders();
+            .AddSignInManager();
 
         return services;
     }
