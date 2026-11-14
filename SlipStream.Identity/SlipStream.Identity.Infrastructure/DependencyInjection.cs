@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SlipStream.Identity.Core.Contracts;
 using SlipStream.Identity.Infrastructure.Identity;
 using SlipStream.Identity.Infrastructure.Persistence;
+using SlipStream.Identity.Infrastructure.Providers;
+using SlipStream.Identity.Infrastructure.Repositories;
 
 namespace SlipStream.Identity.Infrastructure;
 
@@ -13,7 +16,12 @@ public static class DependencyInjection
     {
         services
             .AddPersistence(configuration)
-            .AddIdentityServices();
+            .AddIdentityServices()
+            .AddJwt(configuration);
+
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         return services;
     }
@@ -21,7 +29,7 @@ public static class DependencyInjection
     private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("Postgres")
-            ?? throw new InvalidOperationException("Connection string 'Postgres' is not configured.");
+            ?? throw new InvalidOperationException("Рядок підключення 'Postgres' не налаштований.");
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString, npgsql =>
@@ -36,6 +44,8 @@ public static class DependencyInjection
             .AddIdentityCore<ApplicationUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
+                options.User.AllowedUserNameCharacters =
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-";
 
                 options.Password.RequiredLength = 8;
                 options.Password.RequireDigit = true;
@@ -47,6 +57,7 @@ public static class DependencyInjection
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddRoles<IdentityRole<Guid>>()
+            .AddErrorDescriber<UkrainianIdentityErrorDescriber>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();

@@ -19,7 +19,7 @@
         <PrivateAssets>all</PrivateAssets>
       </PackageReference>
       <PackageReference Include="SlipStream.Common.Mediator" Version="1.0.1" />
-      <PackageReference Include="SlipStream.Common.Web" Version="1.0.3" />
+      <PackageReference Include="SlipStream.Common.Web" Version="1.0.4" />
     </ItemGroup>
 
 </Project>

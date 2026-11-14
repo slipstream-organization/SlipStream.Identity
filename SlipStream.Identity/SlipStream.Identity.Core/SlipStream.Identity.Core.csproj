@@ -10,4 +10,9 @@
       <ProjectReference Include="..\SlipStream.Identity.Domain\SlipStream.Identity.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="SlipStream.Common.Mediator" Version="1.0.1" />
+        <PackageReference Include="SlipStream.Common.Web" Version="1.0.*" />
+    </ItemGroup>
+
 </Project>

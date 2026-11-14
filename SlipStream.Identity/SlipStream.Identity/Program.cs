@@ -1,7 +1,10 @@
-using Microsoft.AspNetCore.Identity;
+using System.Globalization;
+using FluentValidation;
 using SlipStream.Common.Extensions;
+using SlipStream.Identity.Core.Registration;
 using SlipStream.Identity.Infrastructure;
-using SlipStream.Identity.Infrastructure.Identity;
+
+ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("uk");
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,16 +13,13 @@ var configuration = builder.Configuration;
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
-
 builder.Services.AddHealthCheck(
-    configuration.GetConnectionString("Postgres"), 
+    configuration.GetConnectionString("Postgres"),
     configuration.GetConnectionString("Redis"));
 
-builder.Services.AddMediator(typeof(Program).Assembly);
+builder.Services.AddMediator(typeof(Program).Assembly, typeof(RegisterCommandHandler).Assembly);
 builder.Services.AddPlatformWeb();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(configuration);
 
 var app = builder.Build();
 

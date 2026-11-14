@@ -9,11 +9,11 @@ using SlipStream.Identity.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace SlipStream.Identity.Infrastructure.Persistence.Migrations
+namespace SlipStream.Identity.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261101194527_Initial")]
-    partial class Initial
+    [Migration("20261114135146_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -237,6 +237,7 @@ namespace SlipStream.Identity.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
+                        .IsUnique()
                         .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
