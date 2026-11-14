@@ -7,6 +7,7 @@ using SlipStream.Identity.Infrastructure.Identity;
 using SlipStream.Identity.Infrastructure.Persistence;
 using SlipStream.Identity.Infrastructure.Providers;
 using SlipStream.Identity.Infrastructure.Repositories;
+using StackExchange.Redis;
 
 namespace SlipStream.Identity.Infrastructure;
 
@@ -23,6 +24,11 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        var redis = configuration.GetConnectionString("Redis")
+            ?? throw new InvalidOperationException("Рядок підключення 'Redis' не налаштований.");
+        services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redis));
+        services.AddSingleton<IAuthCodeStore, RedisAuthCodeStore>();
 
         return services;
     }

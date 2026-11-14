@@ -21,4 +21,7 @@ internal sealed class RefreshTokenRepository(ApplicationDbContext db) : IRefresh
         db.RefreshTokens.Remove(token);
         await db.SaveChangesAsync(ct);
     }
+
+    public Task DeleteAllForUserAsync(Guid userId, CancellationToken ct = default) =>
+        db.RefreshTokens.Where(t => t.UserId == userId).ExecuteDeleteAsync(ct);
 }

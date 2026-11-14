@@ -51,7 +51,6 @@ internal sealed class JwtProvider(
         if (stored is null)
             throw new UnauthorizedException("Недійсний refresh-токен. Увійдіть знову.");
 
-        // Refresh одноразовий: старий видаляємо в будь-якому разі.
         await refreshTokens.DeleteAsync(stored, ct);
 
         if (stored.IsExpired)
@@ -73,6 +72,17 @@ internal sealed class JwtProvider(
                 await refreshTokens.DeleteAsync(stored, ct);
         }
 
+        ClearCookies();
+    }
+
+    public async Task RevokeAllAsync(Guid userId, CancellationToken ct = default)
+    {
+        await refreshTokens.DeleteAllForUserAsync(userId, ct);
+        ClearCookies();
+    }
+
+    private void ClearCookies()
+    {
         Http.Response.Cookies.Delete(JwtAuthenticationExtensions.AccessTokenCookie, new CookieOptions { Path = "/" });
         Http.Response.Cookies.Delete(RefreshTokenCookie, new CookieOptions { Path = RefreshCookiePath });
     }

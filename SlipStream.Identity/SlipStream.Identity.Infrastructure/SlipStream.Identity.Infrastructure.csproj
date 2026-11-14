@@ -24,6 +24,7 @@
       </PackageReference>
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="SlipStream.Common.Web" Version="1.0.4" />
+        <PackageReference Include="StackExchange.Redis" Version="2.10.1" />
     </ItemGroup>
 
 </Project>

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,10 +8,11 @@ namespace SlipStream.Identity.Infrastructure.Identity;
 
 public static class GoogleAuthExtensions
 {
-    /// <summary>Тимчасова cookie, у якій живе результат входу через Google до моменту видачі наших JWT.</summary>
     public const string ExternalScheme = "External";
 
     public const string ProviderName = "Google";
+
+    public const string PictureClaim = "picture";
 
     internal static IServiceCollection AddGoogleLogin(this IServiceCollection services, IConfiguration configuration)
     {
@@ -23,8 +25,8 @@ public static class GoogleAuthExtensions
             .AddGoogle(o =>
             {
                 o.SignInScheme = ExternalScheme;
+                o.ClaimActions.MapJsonKey(PictureClaim, "picture");
 
-                // Невдалий вхід (скасування, протухлий або відсутній state) дає не 500, а редірект на фронт.
                 o.Events.OnRemoteFailure = context =>
                 {
                     var logger = context.HttpContext.RequestServices
@@ -39,7 +41,6 @@ public static class GoogleAuthExtensions
                 };
             });
 
-        // ClientId і ClientSecret беруться із секції "Google" (user-secrets або Google__ClientId / Google__ClientSecret).
         services.AddOptions<GoogleOptions>(GoogleDefaults.AuthenticationScheme)
             .Bind(configuration.GetSection("Google"));
 

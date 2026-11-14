@@ -13,7 +13,6 @@ internal sealed class AccountService(UserManager<ApplicationUser> userManager) :
         if (account is not null)
             return (ToInfo(account), false);
 
-        // Google віддає лише підтверджені email, тож акаунт із таким email можна безпечно прив'язати.
         account = await userManager.FindByEmailAsync(login.Email);
         var isNew = account is null;
 
@@ -33,6 +32,16 @@ internal sealed class AccountService(UserManager<ApplicationUser> userManager) :
             account, new UserLoginInfo(login.Provider, login.ProviderKey, login.Provider)));
 
         return (ToInfo(account), isNew);
+    }
+
+    public async Task<IReadOnlyList<string>> GetProvidersAsync(Guid id, CancellationToken ct = default)
+    {
+        var account = await userManager.FindByIdAsync(id.ToString());
+        if (account is null)
+            return [];
+
+        var logins = await userManager.GetLoginsAsync(account);
+        return logins.Select(l => l.LoginProvider.ToLowerInvariant()).Distinct().ToList();
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)

@@ -15,7 +15,6 @@ namespace SlipStream.Identity.Infrastructure.Migrations
     [Migration("20261114135146_InitialCreate")]
     partial class InitialCreate
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

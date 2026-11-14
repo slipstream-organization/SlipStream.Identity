@@ -1,6 +1,5 @@
 namespace SlipStream.Identity.Domain.Tokens;
 
-/// <summary>Refresh-токен. У БД зберігається лише SHA-256 хеш, сам токен живе тільки в cookie клієнта.</summary>
 public sealed class RefreshToken
 {
     public Guid Id { get; private set; }

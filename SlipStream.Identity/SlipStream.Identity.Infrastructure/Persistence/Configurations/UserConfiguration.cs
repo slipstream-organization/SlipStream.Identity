@@ -17,7 +17,14 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Email).HasMaxLength(256).IsRequired();
         builder.HasIndex(x => x.Email).IsUnique();
 
+        builder.Property(x => x.Handle).HasMaxLength(UserHandle.MaxLength).IsRequired();
+        builder.Property(x => x.NormalizedHandle).HasMaxLength(UserHandle.MaxLength).IsRequired();
+        builder.HasIndex(x => x.NormalizedHandle).IsUnique();
+
         builder.Property(x => x.DisplayName).HasMaxLength(128).IsRequired();
+        builder.Property(x => x.AvatarUrl).HasMaxLength(512);
+        builder.Property(x => x.FavouriteTeam).HasMaxLength(32);
+        builder.Property(x => x.FavouriteDriver).HasMaxLength(3);
         builder.Property(x => x.CreatedAtUtc).IsRequired();
 
         builder.HasOne<ApplicationUser>()
