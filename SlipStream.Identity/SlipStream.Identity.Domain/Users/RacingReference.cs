@@ -14,6 +14,13 @@ public static class RacingReference
         "COL", "OCO", "BEA", "LAW", "LIN", "ALB", "SAI", "HUL", "BOR", "PER", "BOT"
     };
 
-    public static bool IsKnownTeam(string teamId) => Teams.Contains(teamId);
-    public static bool IsKnownDriver(string driverCode) => Drivers.Contains(driverCode);
+    public static bool IsKnownTeam(string teamId)
+    {
+        return Teams.Contains(teamId);
+    }
+
+    public static bool IsKnownDriver(string driverCode)
+    {
+        return Drivers.Contains(driverCode);
+    }
 }

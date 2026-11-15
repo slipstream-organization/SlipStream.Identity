@@ -5,14 +5,19 @@ namespace SlipStream.Identity.UnitTests.Users;
 
 public sealed class CheckHandleQueryHandlerTests
 {
-    private readonly FakeUserRepository _users = new();
+    private readonly FakeUserRepository _users;
+    private readonly CheckHandleQueryHandler _handler;
 
-    private CheckHandleQueryHandler Handler => new(_users);
+    public CheckHandleQueryHandlerTests()
+    {
+        _users = new FakeUserRepository();
+        _handler = new CheckHandleQueryHandler(_users);
+    }
 
     [Fact]
     public async Task Free_handle_is_available()
     {
-        var result = await Handler.Handle(new CheckHandleQuery("free_handle"), default);
+        var result = await _handler.Handle(new CheckHandleQuery("free_handle"), default);
         Assert.True(result.Available);
     }
 
@@ -21,7 +26,7 @@ public sealed class CheckHandleQueryHandlerTests
     {
         _users.Add("Max_33");
 
-        var result = await Handler.Handle(new CheckHandleQuery("max_33"), default);
+        var result = await _handler.Handle(new CheckHandleQuery("max_33"), default);
 
         Assert.False(result.Available);
     }
@@ -36,7 +41,7 @@ public sealed class CheckHandleQueryHandlerTests
     [InlineData("a_very_long_handle_that_is_over_32")]
     public async Task Invalid_handle_is_not_available(string? handle)
     {
-        var result = await Handler.Handle(new CheckHandleQuery(handle), default);
+        var result = await _handler.Handle(new CheckHandleQuery(handle), default);
         Assert.False(result.Available);
     }
 }

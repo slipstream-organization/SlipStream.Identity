@@ -17,16 +17,27 @@ namespace SlipStream.Identity.Controllers;
 
 [ApiController]
 [Route("v1/auth")]
-public class AuthController(IMediator mediator, IOptions<FrontendOptions> frontend) : ControllerBase
+public class AuthController : ControllerBase
 {
+    private readonly IMediator _mediator;
+    private readonly FrontendOptions _frontend;
+
+    public AuthController(IMediator mediator, IOptions<FrontendOptions> frontend)
+    {
+        _mediator = mediator;
+        _frontend = frontend.Value;
+    }
+
     [HttpGet("google")]
     public IActionResult Google([FromQuery] string? returnUrl)
     {
         if (returnUrl is not null && !ReturnUrl.IsValid(returnUrl))
+        {
             throw new ValidationException(new Dictionary<string, string[]>
             {
                 ["returnUrl"] = ["returnUrl має бути відносним шляхом, наприклад /dashboard."]
             });
+        }
 
         var properties = new AuthenticationProperties
         {
@@ -42,7 +53,9 @@ public class AuthController(IMediator mediator, IOptions<FrontendOptions> fronte
         await HttpContext.SignOutAsync(GoogleAuthExtensions.ExternalScheme);
 
         if (!result.Succeeded)
+        {
             return RedirectToFrontend("/login", new() { ["error"] = "google_failed" });
+        }
 
         var principal = result.Principal;
         var key = principal.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -51,18 +64,13 @@ public class AuthController(IMediator mediator, IOptions<FrontendOptions> fronte
         var avatar = principal.FindFirstValue(GoogleAuthExtensions.PictureClaim);
 
         if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(email))
+        {
             return RedirectToFrontend("/login", new() { ["error"] = "google_no_email" });
+        }
 
         string code;
-        try
-        {
-            code = await mediator.Send(new ExternalLoginCommand(
+            code = await _mediator.Send(new ExternalLoginCommand(
                 new ExternalLogin(GoogleAuthExtensions.ProviderName, key, email, name!, avatar)));
-        }
-        catch (AppException)
-        {
-            return RedirectToFrontend("/login", new() { ["error"] = "google_failed" });
-        }
 
         return RedirectToFrontend("/auth/callback", new()
         {
@@ -74,19 +82,19 @@ public class AuthController(IMediator mediator, IOptions<FrontendOptions> fronte
     [HttpPost("exchange")]
     public async Task<ActionResult<TokenResponse>> Exchange([FromBody] ExchangeRequest request)
     {
-        return Ok(await mediator.Send(new ExchangeCodeCommand(request.Code)));
+        return Ok(await _mediator.Send(new ExchangeCodeCommand(request.Code)));
     }
 
     [HttpPost("refresh")]
     public async Task<ActionResult<TokenResponse>> Refresh()
     {
-        return Ok(await mediator.Send(new RefreshCommand()));
+        return Ok(await _mediator.Send(new RefreshCommand()));
     }
 
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        await mediator.Send(new LogoutCommand());
+        await _mediator.Send(new LogoutCommand());
         return NoContent();
     }
 
@@ -94,13 +102,13 @@ public class AuthController(IMediator mediator, IOptions<FrontendOptions> fronte
     [HttpPost("logout-all")]
     public async Task<IActionResult> LogoutAll()
     {
-        await mediator.Send(new LogoutAllCommand(User.GetUserId()));
+        await _mediator.Send(new LogoutAllCommand(User.GetUserId()));
         return NoContent();
     }
 
     private RedirectResult RedirectToFrontend(string path, Dictionary<string, string?> query)
     {
-        var url = QueryHelpers.AddQueryString(frontend.Value.Url.TrimEnd('/') + path, query);
+        var url = QueryHelpers.AddQueryString(_frontend.Url.TrimEnd('/') + path, query);
         return Redirect(url);
     }
 }

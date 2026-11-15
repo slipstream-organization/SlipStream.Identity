@@ -6,11 +6,18 @@ namespace SlipStream.Identity.UnitTests.Sessions;
 
 public sealed class ExchangeCodeCommandHandlerTests
 {
-    private readonly FakeAuthCodeStore _codes = new();
-    private readonly FakeAccountService _accounts = new();
-    private readonly FakeJwtProvider _jwt = new();
+    private readonly FakeAuthCodeStore _codes;
+    private readonly FakeAccountService _accounts;
+    private readonly FakeJwtProvider _jwt;
+    private readonly ExchangeCodeCommandHandler _handler;
 
-    private ExchangeCodeCommandHandler Handler => new(_codes, _accounts, _jwt);
+    public ExchangeCodeCommandHandlerTests()
+    {
+        _codes = new FakeAuthCodeStore();
+        _accounts = new FakeAccountService();
+        _jwt = new FakeJwtProvider();
+        _handler = new ExchangeCodeCommandHandler(_codes, _accounts, _jwt);
+    }
 
     [Fact]
     public async Task Valid_code_issues_tokens_for_its_user()
@@ -19,7 +26,7 @@ public sealed class ExchangeCodeCommandHandlerTests
         _accounts.Add(userId, "u@test.dev");
         var code = await _codes.CreateAsync(userId);
 
-        var result = await Handler.Handle(new ExchangeCodeCommand(code), default);
+        var result = await _handler.Handle(new ExchangeCodeCommand(code), default);
 
         Assert.Equal(_jwt.Token, result);
         Assert.Equal([userId], _jwt.IssuedFor);
@@ -32,16 +39,16 @@ public sealed class ExchangeCodeCommandHandlerTests
         _accounts.Add(userId, "u@test.dev");
         var code = await _codes.CreateAsync(userId);
 
-        await Handler.Handle(new ExchangeCodeCommand(code), default);
+        await _handler.Handle(new ExchangeCodeCommand(code), default);
 
-        await Assert.ThrowsAsync<ValidationException>(() => Handler.Handle(new ExchangeCodeCommand(code), default));
+        await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(new ExchangeCodeCommand(code), default));
         Assert.Single(_jwt.IssuedFor);
     }
 
     [Fact]
     public async Task Unknown_code_is_rejected()
     {
-        await Assert.ThrowsAsync<ValidationException>(() => Handler.Handle(new ExchangeCodeCommand("unknown"), default));
+        await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(new ExchangeCodeCommand("unknown"), default));
         Assert.Empty(_jwt.IssuedFor);
     }
 
@@ -50,7 +57,7 @@ public sealed class ExchangeCodeCommandHandlerTests
     {
         var code = await _codes.CreateAsync(Guid.NewGuid());
 
-        await Assert.ThrowsAsync<ValidationException>(() => Handler.Handle(new ExchangeCodeCommand(code), default));
+        await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(new ExchangeCodeCommand(code), default));
         Assert.Empty(_jwt.IssuedFor);
     }
 

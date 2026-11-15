@@ -7,19 +7,29 @@ namespace SlipStream.Identity.UnitTests.Sessions;
 
 public sealed class ExternalLoginCommandHandlerTests
 {
-    private readonly FakeAccountService _accounts = new();
-    private readonly FakeUserRepository _users = new();
-    private readonly FakeAuthCodeStore _codes = new();
+    private readonly FakeAccountService _accounts;
+    private readonly FakeUserRepository _users;
+    private readonly FakeAuthCodeStore _codes;
+    private readonly ExternalLoginCommandHandler _handler;
 
-    private ExternalLoginCommandHandler Handler => new(_accounts, _users, _codes);
+    public ExternalLoginCommandHandlerTests()
+    {
+        _accounts = new FakeAccountService();
+        _users = new FakeUserRepository();
+        _codes = new FakeAuthCodeStore();
+        _handler = new ExternalLoginCommandHandler(_accounts, _users, _codes);
+    }
 
-    private static ExternalLoginCommand Command(string key = "g-1", string email = "lewis@test.dev") =>
-        new(new ExternalLogin("Google", key, email, "Lewis Hamilton", "https://img.test/lewis.png"));
+    private static ExternalLoginCommand Command(string key = "g-1", string email = "lewis@test.dev")
+    {
+        return new ExternalLoginCommand(
+            new ExternalLogin("Google", key, email, "Lewis Hamilton", "https://img.test/lewis.png"));
+    }
 
     [Fact]
     public async Task New_user_gets_profile_with_name_avatar_and_generated_handle()
     {
-        await Handler.Handle(Command(), default);
+        await _handler.Handle(Command(), default);
 
         var user = Assert.Single(_users.Users);
         Assert.Equal("lewis@test.dev", user.Email);
@@ -32,7 +42,7 @@ public sealed class ExternalLoginCommandHandlerTests
     [Fact]
     public async Task Returns_one_time_code_for_the_user()
     {
-        var code = await Handler.Handle(Command(), default);
+        var code = await _handler.Handle(Command(), default);
 
         var user = Assert.Single(_users.Users);
         Assert.Equal(user.Id, _codes.Codes[code]);
@@ -46,7 +56,7 @@ public sealed class ExternalLoginCommandHandlerTests
         var profile = User.Create(id, "lewis@test.dev", "lewis44", "Lewis");
         _users.Users.Add(profile);
 
-        await Handler.Handle(Command(), default);
+        await _handler.Handle(Command(), default);
 
         Assert.Single(_users.Users);
         Assert.Equal("lewis44", profile.Handle);
@@ -60,7 +70,7 @@ public sealed class ExternalLoginCommandHandlerTests
         _accounts.Add(id, "lewis@test.dev");
         _users.Users.Add(User.Create(id, "lewis@test.dev", "lewis44", "Lewis"));
 
-        await Handler.Handle(Command(key: "g-new"), default);
+        await _handler.Handle(Command(key: "g-new"), default);
 
         Assert.Single(_users.Users);
         Assert.Equal(["google"], await _accounts.GetProvidersAsync(id));
@@ -74,7 +84,7 @@ public sealed class ExternalLoginCommandHandlerTests
         var profile = User.Create(id, "lewis@test.dev", "lewis44", "Lewis");
         _users.Users.Add(profile);
 
-        await Handler.Handle(Command(), default);
+        await _handler.Handle(Command(), default);
 
         Assert.Equal("https://img.test/lewis.png", profile.AvatarUrl);
     }
@@ -87,7 +97,7 @@ public sealed class ExternalLoginCommandHandlerTests
         var profile = User.Create(id, "lewis@test.dev", "lewis44", "Lewis", "https://img.test/custom.png");
         _users.Users.Add(profile);
 
-        await Handler.Handle(Command(), default);
+        await _handler.Handle(Command(), default);
 
         Assert.Equal("https://img.test/custom.png", profile.AvatarUrl);
     }
@@ -97,7 +107,7 @@ public sealed class ExternalLoginCommandHandlerTests
     {
         _users.Add("lewis_hamilton");
 
-        await Handler.Handle(Command(), default);
+        await _handler.Handle(Command(), default);
 
         var created = _users.Users.Last();
         Assert.NotEqual("lewis_hamilton", created.Handle);

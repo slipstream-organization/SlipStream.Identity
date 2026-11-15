@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlipStream.Identity.Domain"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlipStream.Identity.UnitTests", "SlipStream.Identity.UnitTests\SlipStream.Identity.UnitTests.csproj", "{F81B2B1A-3473-4DC7-BABF-5BC8765D0542}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlipStream.identity.EventConsumer", "SlipStream.identity.EventConsumer\SlipStream.identity.EventConsumer.csproj", "{C4395ACF-D60C-4FE5-9368-599FFF509DEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,18 @@ Global
 		{F81B2B1A-3473-4DC7-BABF-5BC8765D0542}.Release|x64.Build.0 = Release|Any CPU
 		{F81B2B1A-3473-4DC7-BABF-5BC8765D0542}.Release|x86.ActiveCfg = Release|Any CPU
 		{F81B2B1A-3473-4DC7-BABF-5BC8765D0542}.Release|x86.Build.0 = Release|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Debug|x64.Build.0 = Debug|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Debug|x86.Build.0 = Debug|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Release|x64.ActiveCfg = Release|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Release|x64.Build.0 = Release|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Release|x86.ActiveCfg = Release|Any CPU
+		{C4395ACF-D60C-4FE5-9368-599FFF509DEE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

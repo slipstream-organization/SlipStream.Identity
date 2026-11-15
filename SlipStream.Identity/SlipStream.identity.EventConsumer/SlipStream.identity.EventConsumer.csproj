@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-SlipStream.identity.EventConsumer-de940c62-2a3a-4078-a3dd-ca91aea45363</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.12"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SlipStream.Identity.Core\SlipStream.Identity.Core.csproj" />
+      <ProjectReference Include="..\SlipStream.Identity.Infrastructure\SlipStream.Identity.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="SlipStream.Common.Messaging" Version="1.0.1" />
+    </ItemGroup>
+</Project>
+    

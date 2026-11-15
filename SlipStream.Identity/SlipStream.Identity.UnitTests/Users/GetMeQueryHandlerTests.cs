@@ -6,10 +6,16 @@ namespace SlipStream.Identity.UnitTests.Users;
 
 public sealed class GetMeQueryHandlerTests
 {
-    private readonly FakeUserRepository _users = new();
-    private readonly FakeAccountService _accounts = new();
+    private readonly FakeUserRepository _users;
+    private readonly FakeAccountService _accounts;
+    private readonly GetMeQueryHandler _handler;
 
-    private GetMeQueryHandler Handler => new(_users, _accounts);
+    public GetMeQueryHandlerTests()
+    {
+        _users = new FakeUserRepository();
+        _accounts = new FakeAccountService();
+        _handler = new GetMeQueryHandler(_users, _accounts);
+    }
 
     [Fact]
     public async Task Returns_all_profile_fields_and_providers()
@@ -20,7 +26,7 @@ public sealed class GetMeQueryHandlerTests
         user.SetFavouriteDriver("NOR");
         _accounts.Add(user.Id, user.Email, googleKey: "g-4");
 
-        var me = await Handler.Handle(new GetMeQuery(user.Id), default);
+        var me = await _handler.Handle(new GetMeQuery(user.Id), default);
 
         Assert.Equal(user.Id, me.Id);
         Assert.Equal("lando", me.Handle);
@@ -36,6 +42,6 @@ public sealed class GetMeQueryHandlerTests
     [Fact]
     public async Task Missing_profile_gives_not_found()
     {
-        await Assert.ThrowsAsync<NotFoundException>(() => Handler.Handle(new GetMeQuery(Guid.NewGuid()), default));
+        await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(new GetMeQuery(Guid.NewGuid()), default));
     }
 }

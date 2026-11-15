@@ -14,6 +14,8 @@ public sealed class ReturnUrlTests
     [InlineData("dashboard", false)]
     [InlineData("", false)]
     [InlineData(null, false)]
-    public void Only_relative_paths_are_allowed(string? url, bool expected) =>
+    public void Only_relative_paths_are_allowed(string? url, bool expected)
+    {
         Assert.Equal(expected, ReturnUrl.IsValid(url));
+    }
 }

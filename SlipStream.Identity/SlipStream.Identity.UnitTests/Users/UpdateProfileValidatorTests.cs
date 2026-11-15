@@ -4,12 +4,19 @@ namespace SlipStream.Identity.UnitTests.Users;
 
 public sealed class UpdateProfileValidatorTests
 {
-    private readonly UpdateProfileValidator _validator = new();
+    private readonly UpdateProfileValidator _validator;
+
+    public UpdateProfileValidatorTests()
+    {
+        _validator = new UpdateProfileValidator();
+    }
 
     private static UpdateProfileCommand Command(
         Optional<string> handle = default, Optional<string> name = default, Optional<string> avatar = default,
-        Optional<string> team = default, Optional<string> driver = default) =>
-        new(Guid.NewGuid(), handle, name, avatar, team, driver);
+        Optional<string> team = default, Optional<string> driver = default)
+    {
+        return new UpdateProfileCommand(Guid.NewGuid(), handle, name, avatar, team, driver);
+    }
 
     [Fact]
     public void Empty_request_is_valid()

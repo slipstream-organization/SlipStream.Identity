@@ -5,7 +5,17 @@ namespace SlipStream.Identity.Core.Sessions;
 
 public sealed record LogoutCommand : IRequest;
 
-public class LogoutCommandHandler(IJwtProvider jwt) : IRequestHandler<LogoutCommand>
+public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
 {
-    public Task Handle(LogoutCommand request, CancellationToken ct) => jwt.RevokeAsync(ct);
+    private readonly IJwtProvider _jwt;
+
+    public LogoutCommandHandler(IJwtProvider jwt)
+    {
+        _jwt = jwt;
+    }
+
+    public Task Handle(LogoutCommand request, CancellationToken ct)
+    {
+        return _jwt.RevokeAsync(ct);
+    }
 }

@@ -13,9 +13,12 @@ public sealed record MeResponse(
     DateTime CreatedAt,
     IReadOnlyList<string> Providers)
 {
-    public static MeResponse From(User user, IReadOnlyList<string> providers) => new(
-        user.Id, user.Handle, user.DisplayName, user.Email, user.AvatarUrl,
-        user.FavouriteTeam, user.FavouriteDriver, user.CreatedAtUtc, providers);
+    public static MeResponse From(User user, IReadOnlyList<string> providers)
+    {
+        return new MeResponse(
+            user.Id, user.Handle, user.DisplayName, user.Email, user.AvatarUrl,
+            user.FavouriteTeam, user.FavouriteDriver, user.CreatedAtUtc, providers);
+    }
 }
 
 public sealed record PublicUserResponse(
@@ -26,8 +29,11 @@ public sealed record PublicUserResponse(
     string? FavouriteDriver,
     DateTime CreatedAt)
 {
-    public static PublicUserResponse From(User user) => new(
-        user.Handle, user.DisplayName, user.AvatarUrl, user.FavouriteTeam, user.FavouriteDriver, user.CreatedAtUtc);
+    public static PublicUserResponse From(User user)
+    {
+        return new PublicUserResponse(
+            user.Handle, user.DisplayName, user.AvatarUrl, user.FavouriteTeam, user.FavouriteDriver, user.CreatedAtUtc);
+    }
 }
 
 public sealed record HandleAvailabilityResponse(bool Available);

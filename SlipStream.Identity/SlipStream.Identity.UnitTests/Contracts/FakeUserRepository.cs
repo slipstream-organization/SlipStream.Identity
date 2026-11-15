@@ -5,7 +5,12 @@ namespace SlipStream.Identity.UnitTests.Contracts;
 
 internal sealed class FakeUserRepository : IUserRepository
 {
-    public List<User> Users { get; } = [];
+    public FakeUserRepository()
+    {
+        Users = [];
+    }
+
+    public List<User> Users { get; }
 
     public User Add(string handle, string? email = null, string name = "Racer")
     {
@@ -20,25 +25,35 @@ internal sealed class FakeUserRepository : IUserRepository
         return Task.CompletedTask;
     }
 
-    public Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
-        Task.FromResult(Users.FirstOrDefault(u => u.Id == id));
+    public Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        return Task.FromResult(Users.FirstOrDefault(u => u.Id == id));
+    }
 
-    public Task<User?> GetByHandleAsync(string handle, CancellationToken ct = default) =>
-        Task.FromResult(Users.FirstOrDefault(u => u.NormalizedHandle == UserHandle.Normalize(handle)));
+    public Task<User?> GetByHandleAsync(string handle, CancellationToken ct = default)
+    {
+        return Task.FromResult(Users.FirstOrDefault(u => u.NormalizedHandle == UserHandle.Normalize(handle)));
+    }
 
-    public Task<bool> IsHandleTakenAsync(string handle, Guid? excludeUserId = null, CancellationToken ct = default) =>
-        Task.FromResult(Users.Any(u => u.NormalizedHandle == UserHandle.Normalize(handle) && u.Id != excludeUserId));
+    public Task<bool> IsHandleTakenAsync(string handle, Guid? excludeUserId = null, CancellationToken ct = default)
+    {
+        return Task.FromResult(Users.Any(u => u.NormalizedHandle == UserHandle.Normalize(handle) && u.Id != excludeUserId));
+    }
 
     public Task<bool> PatchAsync(Guid id, Action<User> patch, CancellationToken ct = default)
     {
         var user = Users.FirstOrDefault(u => u.Id == id);
         if (user is null)
+        {
             return Task.FromResult(false);
+        }
 
         patch(user);
         return Task.FromResult(true);
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct = default) =>
-        Task.FromResult(Users.RemoveAll(u => u.Id == id) > 0);
+    public Task<bool> DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        return Task.FromResult(Users.RemoveAll(u => u.Id == id) > 0);
+    }
 }

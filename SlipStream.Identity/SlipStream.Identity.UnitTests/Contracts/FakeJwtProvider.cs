@@ -4,11 +4,18 @@ namespace SlipStream.Identity.UnitTests.Contracts;
 
 internal sealed class FakeJwtProvider : IJwtProvider
 {
-    public TokenResponse Token { get; } = new("access-token", DateTime.UtcNow.AddMinutes(15));
-    public List<Guid> IssuedFor { get; } = [];
+    public FakeJwtProvider()
+    {
+        Token = new TokenResponse("access-token", DateTime.UtcNow.AddMinutes(15));
+        IssuedFor = [];
+        RevokedAllFor = [];
+    }
+
+    public TokenResponse Token { get; }
+    public List<Guid> IssuedFor { get; }
     public int RefreshCalls { get; private set; }
     public int RevokeCalls { get; private set; }
-    public List<Guid> RevokedAllFor { get; } = [];
+    public List<Guid> RevokedAllFor { get; }
 
     public Task<TokenResponse> IssueAsync(AccountInfo account, CancellationToken ct = default)
     {

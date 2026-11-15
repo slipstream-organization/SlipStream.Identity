@@ -9,7 +9,11 @@ namespace SlipStream.Identity.Core.Users;
 public readonly record struct Optional<T>(bool HasValue, T? Value)
 {
     public static Optional<T> None => default;
-    public static Optional<T> Of(T? value) => new(true, value);
+
+    public static Optional<T> Of(T? value)
+    {
+        return new Optional<T>(true, value);
+    }
 }
 
 public sealed record UpdateProfileCommand(
@@ -51,38 +55,77 @@ public class UpdateProfileValidator : AbstractValidator<UpdateProfileCommand>
             .OverridePropertyName("favouriteDriver");
     }
 
-    private static bool BeHttpUrl(string? url) =>
-        Uri.TryCreate(url, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp);
+    private static bool BeHttpUrl(string? url)
+    {
+        return Uri.TryCreate(url, UriKind.Absolute, out var uri)
+               && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp);
+    }
 }
 
-public class UpdateProfileCommandHandler(IUserRepository users, IAccountService accounts)
-    : IRequestHandler<UpdateProfileCommand, MeResponse>
+public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, MeResponse>
 {
+    private readonly IUserRepository _users;
+    private readonly IAccountService _accounts;
+
+    public UpdateProfileCommandHandler(IUserRepository users, IAccountService accounts)
+    {
+        _users = users;
+        _accounts = accounts;
+    }
+
     public async Task<MeResponse> Handle(UpdateProfileCommand request, CancellationToken ct)
     {
         if (request.Handle.HasValue &&
-            await users.IsHandleTakenAsync(request.Handle.Value!, excludeUserId: request.UserId, ct))
+            await _users.IsHandleTakenAsync(request.Handle.Value!, excludeUserId: request.UserId, ct))
         {
             throw new ConflictException("Цей нік уже зайнятий.");
         }
 
-        var found = await users.PatchAsync(request.UserId, user =>
+        var found = await _users.PatchAsync(request.UserId, user =>
         {
-            if (request.Handle.HasValue) user.ChangeHandle(request.Handle.Value!);
-            if (request.Name.HasValue) user.Rename(request.Name.Value!);
-            if (request.AvatarUrl.HasValue) user.SetAvatar(request.AvatarUrl.Value);
-            if (request.FavouriteTeam.HasValue) user.SetFavouriteTeam(Canonical(RacingReference.Teams, request.FavouriteTeam.Value));
-            if (request.FavouriteDriver.HasValue) user.SetFavouriteDriver(request.FavouriteDriver.Value?.ToUpperInvariant());
+            if (request.Handle.HasValue)
+            {
+                user.ChangeHandle(request.Handle.Value!);
+            }
+
+            if (request.Name.HasValue)
+            {
+                user.Rename(request.Name.Value!);
+            }
+
+            if (request.AvatarUrl.HasValue)
+            {
+                user.SetAvatar(request.AvatarUrl.Value);
+            }
+
+            if (request.FavouriteTeam.HasValue)
+            {
+                user.SetFavouriteTeam(Canonical(RacingReference.Teams, request.FavouriteTeam.Value));
+            }
+
+            if (request.FavouriteDriver.HasValue)
+            {
+                user.SetFavouriteDriver(request.FavouriteDriver.Value?.ToUpperInvariant());
+            }
         }, ct);
 
         if (!found)
+        {
             throw new NotFoundException("Користувача не знайдено.");
+        }
 
-        var updated = await users.GetByIdAsync(request.UserId, ct);
-        var providers = await accounts.GetProvidersAsync(request.UserId, ct);
+        var updated = await _users.GetByIdAsync(request.UserId, ct);
+        var providers = await _accounts.GetProvidersAsync(request.UserId, ct);
         return MeResponse.From(updated!, providers);
     }
 
-    private static string? Canonical(IReadOnlySet<string> set, string? value) =>
-        value is null ? null : set.First(v => string.Equals(v, value, StringComparison.OrdinalIgnoreCase));
+    private static string? Canonical(IReadOnlySet<string> set, string? value)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        return set.First(v => string.Equals(v, value, StringComparison.OrdinalIgnoreCase));
+    }
 }

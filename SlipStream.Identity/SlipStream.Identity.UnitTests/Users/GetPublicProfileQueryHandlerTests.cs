@@ -6,9 +6,14 @@ namespace SlipStream.Identity.UnitTests.Users;
 
 public sealed class GetPublicProfileQueryHandlerTests
 {
-    private readonly FakeUserRepository _users = new();
+    private readonly FakeUserRepository _users;
+    private readonly GetPublicProfileQueryHandler _handler;
 
-    private GetPublicProfileQueryHandler Handler => new(_users);
+    public GetPublicProfileQueryHandlerTests()
+    {
+        _users = new FakeUserRepository();
+        _handler = new GetPublicProfileQueryHandler(_users);
+    }
 
     [Fact]
     public async Task Returns_public_fields_found_by_handle_ignoring_case()
@@ -16,7 +21,7 @@ public sealed class GetPublicProfileQueryHandlerTests
         var user = _users.Add("Oscar_P", name: "Oscar Piastri");
         user.SetFavouriteTeam("mclaren");
 
-        var profile = await Handler.Handle(new GetPublicProfileQuery("oscar_p"), default);
+        var profile = await _handler.Handle(new GetPublicProfileQuery("oscar_p"), default);
 
         Assert.Equal("Oscar_P", profile.Handle);
         Assert.Equal("Oscar Piastri", profile.Name);
@@ -40,6 +45,6 @@ public sealed class GetPublicProfileQueryHandlerTests
     [InlineData("bad handle")]
     public async Task Unknown_or_invalid_handle_gives_not_found(string handle)
     {
-        await Assert.ThrowsAsync<NotFoundException>(() => Handler.Handle(new GetPublicProfileQuery(handle), default));
+        await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(new GetPublicProfileQuery(handle), default));
     }
 }

@@ -12,8 +12,10 @@ public sealed class HandleGeneratorTests
     [InlineData("Олег", "racer")]
     [InlineData("A", "racer")]
     [InlineData("Very Long Name That Exceeds Twenty", "very_long_name_that")]
-    public void Base_handle_is_derived_from_name(string seed, string expected) =>
+    public void Base_handle_is_derived_from_name(string seed, string expected)
+    {
         Assert.Equal(expected, HandleGenerator.ToBase(seed));
+    }
 
     [Fact]
     public async Task Free_base_handle_is_used_as_is()

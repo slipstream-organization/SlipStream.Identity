@@ -12,14 +12,19 @@ public sealed class RefreshToken
     {
     }
 
-    public static RefreshToken Create(Guid userId, string tokenHash, DateTime expiresAtUtc) => new()
+    private RefreshToken(Guid userId, string tokenHash, DateTime expiresAtUtc)
     {
-        Id = Guid.NewGuid(),
-        UserId = userId,
-        TokenHash = tokenHash,
-        CreatedAtUtc = DateTime.UtcNow,
-        ExpiresAtUtc = expiresAtUtc
-    };
+        Id = Guid.NewGuid();
+        UserId = userId;
+        TokenHash = tokenHash;
+        CreatedAtUtc = DateTime.UtcNow;
+        ExpiresAtUtc = expiresAtUtc;
+    }
+
+    public static RefreshToken Create(Guid userId, string tokenHash, DateTime expiresAtUtc)
+    {
+        return new RefreshToken(userId, tokenHash, expiresAtUtc);
+    }
 
     public bool IsExpired => DateTime.UtcNow >= ExpiresAtUtc;
 }

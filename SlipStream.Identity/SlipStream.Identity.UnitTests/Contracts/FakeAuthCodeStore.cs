@@ -4,7 +4,12 @@ namespace SlipStream.Identity.UnitTests.Contracts;
 
 internal sealed class FakeAuthCodeStore : IAuthCodeStore
 {
-    public Dictionary<string, Guid> Codes { get; } = [];
+    public FakeAuthCodeStore()
+    {
+        Codes = [];
+    }
+
+    public Dictionary<string, Guid> Codes { get; }
 
     public Task<string> CreateAsync(Guid userId, CancellationToken ct = default)
     {
@@ -13,6 +18,13 @@ internal sealed class FakeAuthCodeStore : IAuthCodeStore
         return Task.FromResult(code);
     }
 
-    public Task<Guid?> ConsumeAsync(string code, CancellationToken ct = default) =>
-        Task.FromResult(Codes.Remove(code, out var id) ? id : (Guid?)null);
+    public Task<Guid?> ConsumeAsync(string code, CancellationToken ct = default)
+    {
+        if (!Codes.Remove(code, out var id))
+        {
+            return Task.FromResult<Guid?>(null);
+        }
+
+        return Task.FromResult<Guid?>(id);
+    }
 }

@@ -5,23 +5,34 @@ using SlipStream.Identity.Infrastructure.Persistence;
 
 namespace SlipStream.Identity.Infrastructure.Repositories;
 
-internal sealed class RefreshTokenRepository(ApplicationDbContext db) : IRefreshTokenRepository
+internal sealed class RefreshTokenRepository : IRefreshTokenRepository
 {
-    public async Task AddAsync(RefreshToken token, CancellationToken ct = default)
+    private readonly ApplicationDbContext _db;
+
+    public RefreshTokenRepository(ApplicationDbContext db)
     {
-        db.RefreshTokens.Add(token);
-        await db.SaveChangesAsync(ct);
+        _db = db;
     }
 
-    public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken ct = default) =>
-        db.RefreshTokens.FirstOrDefaultAsync(t => t.TokenHash == tokenHash, ct);
+    public async Task AddAsync(RefreshToken token, CancellationToken ct = default)
+    {
+        _db.RefreshTokens.Add(token);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken ct = default)
+    {
+        return _db.RefreshTokens.FirstOrDefaultAsync(t => t.TokenHash == tokenHash, ct);
+    }
 
     public async Task DeleteAsync(RefreshToken token, CancellationToken ct = default)
     {
-        db.RefreshTokens.Remove(token);
-        await db.SaveChangesAsync(ct);
+        _db.RefreshTokens.Remove(token);
+        await _db.SaveChangesAsync(ct);
     }
 
-    public Task DeleteAllForUserAsync(Guid userId, CancellationToken ct = default) =>
-        db.RefreshTokens.Where(t => t.UserId == userId).ExecuteDeleteAsync(ct);
+    public Task DeleteAllForUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        return _db.RefreshTokens.Where(t => t.UserId == userId).ExecuteDeleteAsync(ct);
+    }
 }

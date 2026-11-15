@@ -7,9 +7,12 @@ using SlipStream.Identity.Infrastructure.Identity;
 
 namespace SlipStream.Identity.Infrastructure.Persistence;
 
-public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options)
+public sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
+
     public DbSet<User> Profiles { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 

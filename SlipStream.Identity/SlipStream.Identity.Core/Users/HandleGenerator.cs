@@ -15,13 +15,17 @@ public static class HandleGenerator
         var baseHandle = ToBase(seed);
 
         if (!await users.IsHandleTakenAsync(baseHandle, ct: ct))
+        {
             return baseHandle;
+        }
 
         for (var i = 0; i < 10; i++)
         {
             var candidate = $"{baseHandle}_{RandomNumberGenerator.GetInt32(1000, 10000)}";
             if (!await users.IsHandleTakenAsync(candidate, ct: ct))
+            {
                 return candidate;
+            }
         }
 
         return $"{baseHandle}_{Convert.ToHexString(RandomNumberGenerator.GetBytes(4)).ToLowerInvariant()}";
@@ -33,14 +37,20 @@ public static class HandleGenerator
         foreach (var c in seed.Trim().ToLowerInvariant())
         {
             if (c is >= 'a' and <= 'z' or >= '0' and <= '9')
+            {
                 sb.Append(c);
+            }
             else if (sb.Length > 0 && sb[^1] != '_')
+            {
                 sb.Append('_');
+            }
         }
 
         var result = sb.ToString().Trim('_');
         if (result.Length > MaxBaseLength)
+        {
             result = result[..MaxBaseLength].TrimEnd('_');
+        }
 
         return result.Length >= UserHandle.MinLength ? result : Fallback;
     }

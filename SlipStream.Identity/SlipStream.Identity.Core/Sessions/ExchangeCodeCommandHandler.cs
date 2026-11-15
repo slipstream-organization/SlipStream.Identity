@@ -15,20 +15,32 @@ public class ExchangeCodeValidator : AbstractValidator<ExchangeCodeCommand>
     }
 }
 
-public class ExchangeCodeCommandHandler(IAuthCodeStore codes, IAccountService accounts, IJwtProvider jwt)
-    : IRequestHandler<ExchangeCodeCommand, TokenResponse>
+public class ExchangeCodeCommandHandler : IRequestHandler<ExchangeCodeCommand, TokenResponse>
 {
+    private readonly IAuthCodeStore _codes;
+    private readonly IAccountService _accounts;
+    private readonly IJwtProvider _jwt;
+
+    public ExchangeCodeCommandHandler(IAuthCodeStore codes, IAccountService accounts, IJwtProvider jwt)
+    {
+        _codes = codes;
+        _accounts = accounts;
+        _jwt = jwt;
+    }
+
     public async Task<TokenResponse> Handle(ExchangeCodeCommand request, CancellationToken ct)
     {
-        var userId = await codes.ConsumeAsync(request.Code, ct);
-        var account = userId is null ? null : await accounts.FindByIdAsync(userId.Value, ct);
+        var userId = await _codes.ConsumeAsync(request.Code, ct);
+        var account = userId is null ? null : await _accounts.FindByIdAsync(userId.Value, ct);
 
         if (account is null)
+        {
             throw new ValidationException(new Dictionary<string, string[]>
             {
                 ["code"] = ["Код недійсний або вже використаний."]
             });
+        }
 
-        return await jwt.IssueAsync(account, ct);
+        return await _jwt.IssueAsync(account, ct);
     }
 }
